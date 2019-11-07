@@ -183,7 +183,7 @@ def calculate(word_en, word_fr):
 
 pair_set = []
 effective_number = 0
-for id in range(9000):
+for id in range(6000):
     print("*"*80)
     sentence_en = senset_en[id]
     sentence_fr = senset_fr[id]
@@ -215,18 +215,38 @@ for id in range(9000):
         print(sentence_en[pair[0]], sentence_fr[pair[1]])
         effective_number += 1
 
-target_file = open("Unlabeled_En.PI", 'w')
-for i in range(10000):
-    for j in range(sen_en_origin[i]):
-        parts = sen_en_origin[i][j].strip().split()
+
+
+target_file_en = open("data/Unlabeled_En.PI", 'w')
+for i in range(len(pair_set)):
+    if pair_set[i] == None:
+        continue
+    for j in range(len(senset_en_origin[i])):
+        parts = senset_en_origin[i][j].strip().split()
         if j == 0:
             parts[12] = '_'
         if pair_set[i]!=None:
-            if j == pair_set[i]:
+            if j == pair_set[i][0]:
                 parts[12] = 'Y'
-        if pair_set[i]:
-            target_file.write('\t'.join(parts))
-        else:
-            target_file.write('\t'.join(parts[:13]))
-        target_file.write('\n')
-    target_file.write('\n')
+
+        target_file_en.write('\t'.join(parts))
+
+        target_file_en.write('\n')
+    target_file_en.write('\n')
+
+target_file_fr = open("data/Unlabeled_fr.PI", 'w')
+for i in range(len(pair_set)):
+    if pair_set[i] == None:
+        continue
+    for j in range(len(senset_fr_origin[i])):
+        parts = senset_fr_origin[i][j].strip().split()
+        if j == 0:
+            parts[12] = '_'
+        if pair_set[i]!=None:
+            if j == pair_set[i][1]:
+                parts[12] = 'Y'
+
+        target_file_fr.write('\t'.join(parts))
+
+        target_file_fr.write('\n')
+    target_file_fr.write('\n')

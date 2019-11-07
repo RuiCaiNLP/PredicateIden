@@ -61,6 +61,10 @@ def make_parser():
     # input
     parser.add_argument('--train_data', type=str, help='Train Dataset with CoNLL09 format')
     parser.add_argument('--valid_data', type=str, help='Train Dataset with CoNLL09 format')
+    parser.add_argument('--train_data_fr', type=str, help='Train Dataset with CoNLL09 format')
+    parser.add_argument('--valid_data_fr', type=str, help='Train Dataset with CoNLL09 format')
+    parser.add_argument('--unlabeled_data_en', type=str, help='Train Dataset with CoNLL09 format')
+    parser.add_argument('--unlabeled_data_fr', type=str, help='Train Dataset with CoNLL09 format')
     parser.add_argument('--seed', type=int, default=100, help='the random seed')
 
     # this default value is from PATH LSTM, you can just follow it too
@@ -316,10 +320,10 @@ if __name__ == '__main__':
     use_self_attn = args.use_self_attn
     self_attn_head = args.self_attn_heads
 
-    use_tree_lstm = args.use_tree_lstm
-    use_sa_lstm = args.use_sa_lstm
-    use_gcn = args.use_gcn
-    use_rcnn = args.use_rcnn
+    #use_tree_lstm = args.use_tree_lstm
+    #use_sa_lstm = args.use_sa_lstm
+    #use_gcn = args.use_gcn
+    #use_rcnn = args.use_rcnn
 
     if args.train:
         FLAG = 'TRAIN'
@@ -363,14 +367,14 @@ if __name__ == '__main__':
             "elmo_embedding_size": elmo_embedding_size,
             "elmo_options_file": elmo_options_file,
             "elmo_weight_file": elmo_weight_file,
-            "use_tree_lstm": use_tree_lstm,
-            "use_gcn": use_gcn,
-            "use_sa_lstm": use_sa_lstm,
-            "use_rcnn": use_rcnn
+            #"use_tree_lstm": use_tree_lstm,
+            #"use_gcn": use_gcn,
+            #"use_sa_lstm": use_sa_lstm,
+            #"use_rcnn": use_rcnn
         }
 
         # build model
-        srl_model = model.End2EndModel(model_params)
+        srl_model = model.EN_Labeler(model_params)
 
         if USE_CUDA:
             srl_model.cuda()
@@ -391,52 +395,24 @@ if __name__ == '__main__':
         for epoch in range(max_epoch):
 
             epoch_start = time.time()
-            for batch_i, train_input_data in enumerate(inter_utils.get_batch(train_dataset, batch_size, word2idx, fr_word2idx,
+            for batch_i, train_input_data in enumerate(inter_utils.get_batch(train_dataset_fr, batch_size, word2idx, fr_word2idx,
                                                                              lemma2idx, pos2idx, pretrain2idx, fr_pretrain2idx,
-                                                                             deprel2idx, argument2idx, idx2word, shuffle=False,
+                                                                             deprel2idx, argument2idx, idx2word, shuffle=False,lang='Fr'
                                                                              )):
 
-                target_argument = train_input_data['argument']
 
-                flat_argument = train_input_data['flat_argument']
-
-                gold_pos = train_input_data['gold_pos']
-
-                gold_PI = train_input_data['predicates_flag']
-
-                gold_deprel = train_input_data['sep_dep_rel']
-
-                gold_link = train_input_data['sep_dep_link']
-
-                target_batch_variable = get_torch_variable_from_np(flat_argument)
-                #gold_pos_batch_variable = get_torch_variable_from_np(gold_pos)
-                #gold_PI_batch_variable = get_torch_variable_from_np(gold_PI)
-                #gold_deprel_batch_variable = get_torch_variable_from_np(gold_deprel)
-                #gold_link_batch_variable = get_torch_variable_from_np(gold_link)
+                flat_flags = train_input_data['flat_flags']
+                target_batch_variable = get_torch_variable_from_np(flat_flags)
 
                 bs = train_input_data['batch_size']
                 sl = train_input_data['seq_len']
-
-                #out, out_pos, out_PI, out_deprel, out_link = srl_model(train_input_data, elmo)
-                out, l2_loss = srl_model(train_input_data, elmo, withParallel=True, lang='En')
+                out = srl_model(train_input_data, lang='Fr')
                 loss = criterion(out, target_batch_variable)
-
-                #loss_pos = criterion(out_pos, gold_pos_batch_variable.view(-1))
-                #loss_PI = criterion(out_PI, gold_PI_batch_variable.view(-1))
-                #loss_deprel = criterion(out_deprel, gold_deprel_batch_variable.view(-1))
-                #loss_link = criterion(out_link, gold_link_batch_variable.view(-1))
-
-                #loss = loss + loss_pos + loss_PI + loss_deprel + loss_link
                 if batch_i%50 == 0:
                     log(batch_i, loss)
-                    log(batch_i, l2_loss)
-                    #log("POS:")
-                    #print_PRF(out_pos, gold_pos_batch_variable.view(-1))
-                    #print_PRF(out_PI, gold_PI_batch_variable.view(-1))
-                    #print_PRF(out_deprel, gold_deprel_batch_variable.view(-1))
 
                 optimizer.zero_grad()
-                (loss+l2_loss).backward()
+                loss.backward()
                 optimizer.step()
 
                 if batch_i > 0 and batch_i % show_steps == 0:
@@ -450,15 +426,21 @@ if __name__ == '__main__':
                     log('\n')
                     log('*' * 80)
 
-                    eval_train_batch(epoch, batch_i, loss.data[0], flat_argument, pred, argument2idx)
+                    eval_train_batch(epoch, batch_i, loss.data[0], flat_flags, pred, argument2idx)
 
                     log('dev:')
-                    score, dev_output = eval_data(srl_model, elmo, dev_dataset, batch_size, word2idx, fr_word2idx, lemma2idx,
+                    score, dev_output = eval_data(srl_model, elmo, dev_dataset_fr, batch_size, word2idx, fr_word2idx, lemma2idx,
                                                   pos2idx, pretrain2idx, fr_pretrain2idx, deprel2idx, argument2idx, idx2argument, idx2word,
                                                   False,
                                                   dev_predicate_correct, dev_predicate_sum)
                     if dev_best_score is None or score[5] > dev_best_score[5]:
                         dev_best_score = score
+                        score, dev_output = eval_data(srl_model, elmo, unlabeled_dataset_fr, batch_size, word2idx, fr_word2idx,
+                                                      lemma2idx,
+                                                      pos2idx, pretrain2idx, fr_pretrain2idx, deprel2idx, argument2idx,
+                                                      idx2argument, idx2word,
+                                                      False,
+                                                      dev_predicate_correct, dev_predicate_sum)
                         output_predict(
                             os.path.join(result_path, 'dev_argument_{:.2f}.pred'.format(dev_best_score[2] * 100)),
                             dev_output)

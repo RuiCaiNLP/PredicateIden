@@ -50,6 +50,7 @@ def get_batch(input_data, batch_size, word2idx, fr_word2idx, lemma2idx, pos2idx,
         ## denotes all predicates in sens
         sentence_flags_batch = [[int(item[16])+1 for item in sentence] for sentence in data_batch]
         pad_sentence_flags_batch = np.array(pad_batch(sentence_flags_batch, batch_size, 0),dtype=int)
+        flat_flags_batch = np.array([item for line in pad_sentence_flags_batch for item in line])
 
 
 
@@ -109,6 +110,8 @@ def get_batch(input_data, batch_size, word2idx, fr_word2idx, lemma2idx, pos2idx,
             "word_id":id_batch,
             "index":index_batch,
             "flag":pad_flag_batch,
+            "sen_flags":pad_sentence_flags_batch,
+            "flat_flags":flat_flags_batch,
             #"fr_flag": fr_pad_flag_batch,
             #"fr_loss_mask":fr_loss_mask_batch,
             "word":pad_word_batch,

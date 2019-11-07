@@ -8,8 +8,8 @@ def make_dataset():
     raw_dev_file = os.path.join(base_path, 'CoNLL2009-ST-English-development.txt')
     raw_train_file_fr = os.path.join(base_path, 'FR.TrainSet')
     raw_dev_file_fr = os.path.join(base_path, 'FR.DevSet')
-    raw_unlabeled_file_en = os.path.join(base_path, 'europarl.en_ST')
-    raw_unlabeled_file_fr = os.path.join(base_path, 'europarl.fr_ST')
+    raw_unlabeled_file_en = os.path.join(os.path.dirname(__file__), 'data/Unlabeled_En.PI')
+    raw_unlabeled_file_fr = os.path.join(os.path.dirname(__file__), 'data/Unlabeled_fr.PI')
 
 
 
@@ -18,7 +18,7 @@ def make_dataset():
     train_file_fr = os.path.join(os.path.dirname(__file__), 'data/Fr_train.dataset')
     dev_file_fr = os.path.join(os.path.dirname(__file__), 'data/Fr_dev.dataset')
     unlabeled_file_en = os.path.join(os.path.dirname(__file__), 'data/Unlabeled_En.dataset')
-    unlabeled_file_fr = os.path.join(os.path.dirname(__file__), 'data/Unlabeled_Fr.dataset')
+    unlabeled_file_fr = os.path.join(os.path.dirname(__file__), 'data/Unlabeled_fr.dataset')
     #test_file = os.path.join(os.path.dirname(__file__), 'data/conll09-english/conll09_test.dataset')
     #test_ood_file = os.path.join(os.path.dirname(__file__), 'data/conll09-english/conll09_test_ood.dataset')
 
