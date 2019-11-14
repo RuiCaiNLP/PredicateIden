@@ -8,8 +8,8 @@ def make_dataset():
     raw_dev_file = os.path.join(base_path, 'CoNLL2009-ST-English-development.txt')
     raw_train_file_fr = os.path.join(base_path, 'FR.TrainSet')
     raw_dev_file_fr = os.path.join(base_path, 'FR.DevSet')
-    raw_unlabeled_file_en = os.path.join(os.path.dirname(__file__), 'data/Unlabeled_En.PI')
-    raw_unlabeled_file_fr = os.path.join(os.path.dirname(__file__), 'data/Unlabeled_fr.PI')
+    raw_unlabeled_file_en = os.path.join(os.path.dirname(__file__), 'data/CoNLL-2009-Datasets/europarl.en_ST')
+    raw_unlabeled_file_fr = os.path.join(os.path.dirname(__file__), 'data/CoNLL-2009-Datasets/europarl.fr_ST')
 
 
 

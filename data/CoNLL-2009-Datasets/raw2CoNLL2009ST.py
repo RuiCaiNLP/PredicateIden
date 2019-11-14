@@ -1,6 +1,14 @@
 #coding=utf-8
-file = open("europarl.en", 'r')
-file_out = open("europarl.en_ST", 'w')
+file = open("europarl.fr", 'r')
+file_out = open("europarl.fr_ST", 'w')
+vocab_file = open("fr.vocab")
+
+word_set = set()
+for line in vocab_file.readlines():
+    word = line.strip()
+    if word not in word_set:
+        word_set.add(word)
+
 
 for line in file.readlines():
     words = line.strip().split()
@@ -14,6 +22,8 @@ for line in file.readlines():
             word = word = word[0:3] + " " + word[3:]
         if word == "du":
             word = "de le"
+        if word == "des":
+            word = "de les"
         if word.startswith("\"") and not word.endswith("\""):
             word = word[1:]
         if word.startswith("\'") and not word.endswith("\'"):
@@ -31,7 +41,7 @@ for line in file.readlines():
         if word.startswith("("):
             word = word[0] + " " + word[1:]
         if word.endswith(",") or word.endswith(".") or word.endswith("?") or word.endswith(")") or word.endswith(":"):
-            if len(word) > 3:
+            if len(word) > 2:
                 word = word[:-1] + " " + word[-1]
 
         new_sen.append(word)

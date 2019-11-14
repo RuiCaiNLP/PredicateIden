@@ -395,7 +395,7 @@ if __name__ == '__main__':
         for epoch in range(max_epoch):
 
             epoch_start = time.time()
-            for batch_i, train_input_data in enumerate(inter_utils.get_batch(train_dataset_fr, batch_size, word2idx, fr_word2idx,
+            for batch_i, train_input_data in enumerate(inter_utils.get_batch(train_dataset, batch_size, word2idx, fr_word2idx,
                                                                              lemma2idx, pos2idx, pretrain2idx, fr_pretrain2idx,
                                                                              deprel2idx, argument2idx, idx2word, shuffle=False,lang='Fr'
                                                                              )):
@@ -406,7 +406,7 @@ if __name__ == '__main__':
 
                 bs = train_input_data['batch_size']
                 sl = train_input_data['seq_len']
-                out = srl_model(train_input_data, lang='Fr')
+                out = srl_model(train_input_data, lang='En')
                 loss = criterion(out, target_batch_variable)
                 if batch_i%50 == 0:
                     log(batch_i, loss)
@@ -429,13 +429,13 @@ if __name__ == '__main__':
                     eval_train_batch(epoch, batch_i, loss.data[0], flat_flags, pred, argument2idx)
 
                     log('dev:')
-                    score, dev_output = eval_data(srl_model, elmo, dev_dataset_fr, batch_size, word2idx, fr_word2idx, lemma2idx,
+                    score, dev_output = eval_data(srl_model, elmo, dev_dataset, batch_size, word2idx, fr_word2idx, lemma2idx,
                                                   pos2idx, pretrain2idx, fr_pretrain2idx, deprel2idx, argument2idx, idx2argument, idx2word,
                                                   False,
                                                   dev_predicate_correct, dev_predicate_sum)
                     if dev_best_score is None or score[5] > dev_best_score[5]:
                         dev_best_score = score
-                        score, dev_output = eval_data(srl_model, elmo, unlabeled_dataset_fr, batch_size, word2idx, fr_word2idx,
+                        score, dev_output = eval_data(srl_model, elmo, unlabeled_dataset_en, batch_size, word2idx, fr_word2idx,
                                                       lemma2idx,
                                                       pos2idx, pretrain2idx, fr_pretrain2idx, deprel2idx, argument2idx,
                                                       idx2argument, idx2word,
